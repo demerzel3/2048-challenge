@@ -65,6 +65,18 @@ Grid.prototype.eachCell = function (callback) {
   }
 };
 
+Grid.prototype.mapCells = function (callback) {
+  let eachCallback = (x, y, tile) => {
+    var result = callback(x, y, tile);
+    if (tile && !result) {
+      this.cells[x][y] = null;
+    } else if (result) {
+      this.insertTile(result);
+    }
+  };
+  this.eachCell(eachCallback);
+};
+
 // Check if there are any cells available
 Grid.prototype.cellsAvailable = function () {
   return !!this.availableCells().length;

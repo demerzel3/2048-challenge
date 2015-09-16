@@ -63,9 +63,44 @@ GameManager.prototype.setup = function () {
 
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
-  for (var i = 0; i < this.startTiles; i++) {
-    this.addRandomTile();
+  let possibleMaxValues = [256,512,1024];
+  let maxValue = possibleMaxValues[Math.round(Math.random() * (possibleMaxValues.length-1))];
+
+  var possibleValues = [null, null];
+  var value = 2;
+  while (value < maxValue) {
+    possibleValues.push(value);
+    value *= 2;
   }
+
+  // Generate a nice semi-random level
+  var insertedCount = {};
+
+  // Insert exactly one tile of the target value.
+  this.grid.insertTile(new Tile(this.grid.randomAvailableCell(), maxValue));
+  this.grid.mapCells((x, y, tile) => {
+    if (tile) {
+      return tile;
+    }
+
+    value = possibleValues[Math.round(Math.random()*possibleValues.length)];
+    if (!value) {
+      return null;
+    }
+
+    if (!insertedCount[value]) {
+      insertedCount[value] = 0;
+    }
+    insertedCount[value]++;
+
+    return new Tile({x: x, y: y}, value);
+  });
+
+  if (!insertedCount[maxValue/2]) {
+    this.grid.insertTile(new Tile(this.grid.randomAvailableCell(), maxValue/2));
+  }
+
+  console.log('Target is: ' + maxValue*2);
 };
 
 // Adds a tile in a random position
