@@ -1,4 +1,6 @@
-function Grid(size, previousState) {
+import {Tile} from './tile';
+
+export function Grid(size, previousState = null) {
   this.size = size;
   this.cells = previousState ? this.fromState(previousState) : this.empty();
 }
