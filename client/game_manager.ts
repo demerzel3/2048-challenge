@@ -1,19 +1,51 @@
+import {Inject} from 'angular2/angular2';
 import {Tile} from './tile';
 import {Grid} from './grid';
+import {LevelManager} from './service/level_manager';
+import {HTMLActuator} from './html_actuator';
+import {KeyboardInputManager} from './keyboard_input_manager';
+import {LocalStorageManager} from './local_storage_manager';
 
-export function GameManager(size, InputManager, Actuator, StorageManager) {
-    this.size = size; // Size of the grid
-    this.inputManager = new InputManager;
-    this.storageManager = new StorageManager;
-    this.actuator = new Actuator;
+export class GameManager {
+    private level;
 
-    this.startTiles = 2;
+    // Size of the grid
+    private size:number;
+    private levelManager:LevelManager;
+    private inputManager;
+    private storageManager;
+    private actuator;
 
-    this.inputManager.on("move", this.move.bind(this));
-    this.inputManager.on("restart", this.restart.bind(this));
-    this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
+    private boundToInputManager:boolean = false;
 
-    this.setup();
+    constructor(
+        @Inject(LevelManager) levelManager:LevelManager,
+        @Inject(KeyboardInputManager) inputManager,
+        @Inject(HTMLActuator) actuator,
+        @Inject(LocalStorageManager) storageManager) {
+        this.size = 4; // Size of the grid
+        this.levelManager = levelManager;
+        this.inputManager = inputManager;
+        this.storageManager = storageManager;
+        this.actuator = actuator;
+    }
+
+    public setLevel(level) {
+        this.level = level;
+        this.bindInput();
+        this.restart();
+    }
+
+    private bindInput() {
+        if (this.boundToInputManager) {
+            return;
+        }
+
+        this.boundToInputManager = true;
+        this.inputManager.on("move", this.move.bind(this));
+        this.inputManager.on("restart", this.restart.bind(this));
+        this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
+    }
 }
 
 // Restart the game
@@ -36,7 +68,8 @@ GameManager.prototype.isGameTerminated = function () {
 
 // Set up the game
 GameManager.prototype.setup = function () {
-    var previousState = this.storageManager.getGameState();
+    // TODO: figure out how to handle resume.
+    var previousState = null; //this.storageManager.getGameState();
 
     // Reload the game from a previous game if present
     if (previousState) {
@@ -47,60 +80,15 @@ GameManager.prototype.setup = function () {
         this.won = previousState.won;
         this.keepPlaying = previousState.keepPlaying;
     } else {
-        this.grid = new Grid(this.size);
+        this.grid = this.levelManager.getGridForLevel(this.level);
         this.score = 0;
         this.over = false;
         this.won = false;
         this.keepPlaying = false;
-
-        // Add the initial tiles
-        this.addStartTiles();
     }
 
     // Update the actuator
     this.actuate();
-};
-
-// Set up the initial tiles to start the game with
-GameManager.prototype.addStartTiles = function () {
-    let possibleMaxValues = [256, 512, 1024];
-    let maxValue = possibleMaxValues[Math.round(Math.random() * (possibleMaxValues.length - 1))];
-
-    var possibleValues = [null, null];
-    var value = 2;
-    while (value < maxValue) {
-        possibleValues.push(value);
-        value *= 2;
-    }
-
-    // Generate a nice semi-random level
-    var insertedCount = {};
-
-    // Insert exactly one tile of the target value.
-    this.grid.insertTile(new Tile(this.grid.randomAvailableCell(), maxValue));
-    this.grid.mapCells((x, y, tile) => {
-        if (tile) {
-            return tile;
-        }
-
-        value = possibleValues[Math.round(Math.random() * possibleValues.length)];
-        if (!value) {
-            return null;
-        }
-
-        if (!insertedCount[value]) {
-            insertedCount[value] = 0;
-        }
-        insertedCount[value]++;
-
-        return new Tile({x: x, y: y}, value);
-    });
-
-    if (!insertedCount[maxValue / 2]) {
-        this.grid.insertTile(new Tile(this.grid.randomAvailableCell(), maxValue / 2));
-    }
-
-    console.log('Target is: ' + maxValue * 2);
 };
 
 // Adds a tile in a random position
@@ -181,8 +169,8 @@ GameManager.prototype.move = function (direction) {
     this.prepareTiles();
 
     // Traverse the grid in the right direction and move tiles
-    traversals.x.forEach(function (x) {
-        traversals.y.forEach(function (y) {
+    traversals.x.forEach(x => {
+        traversals.y.forEach(y => {
             cell = {x: x, y: y};
             tile = self.grid.cellContent(cell);
 
@@ -204,8 +192,8 @@ GameManager.prototype.move = function (direction) {
                     // Update the score
                     self.score += merged.value;
 
-                    // The mighty 2048 tile
-                    if (merged.value === 2048) self.won = true;
+                    // Target tile reached
+                    if (merged.value === this.level.target) self.won = true;
                 } else {
                     self.moveTile(tile, positions.farthest);
                 }

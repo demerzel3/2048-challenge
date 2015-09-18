@@ -1,8 +1,13 @@
 import {Tile} from './tile';
 
-export function Grid(size, previousState = null) {
-    this.size = size;
-    this.cells = previousState ? this.fromState(previousState) : this.empty();
+export class Grid {
+    public size;
+    public cells;
+
+    constructor(size, previousState = null) {
+        this.size = size;
+        this.cells = previousState ? this.fromState(previousState) : this.empty();
+    }
 }
 
 // Build a grid of the specified size

@@ -12,6 +12,8 @@ boilerplate-generator@1.0.3
 callback-hook@1.0.3
 check@1.0.5
 ddp@1.1.0
+demerzel3:angular2@2.0.9
+demerzel3:angular2-router@2.0.9
 deps@1.0.7
 ejson@1.0.6
 email@1.0.6
@@ -48,7 +50,6 @@ routepolicy@1.0.5
 service-configuration@1.0.4
 session@1.1.0
 sha@1.0.3
-shmck:angular2@2.0.7
 spacebars@1.0.6
 spacebars-compiler@1.0.6
 srp@1.0.3
