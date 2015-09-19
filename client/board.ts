@@ -1,5 +1,5 @@
 import {Component, View, Inject, bootstrap} from 'angular2/angular2';
-import {ROUTER_DIRECTIVES, Router, RouteParams} from 'angular2/router';
+import {ROUTER_DIRECTIVES, Router, RouteParams, CanActivate} from 'angular2/router';
 import {GameManager} from './game_manager';
 import {KeyboardInputManager} from './keyboard_input_manager';
 import {HTMLActuator} from './html_actuator';
@@ -11,6 +11,7 @@ import {LevelManager} from './service/level_manager';
     templateUrl: '/client/view/board.ng.html',
     directives: [ROUTER_DIRECTIVES],
 })
+@CanActivate(() => !!Meteor.userId())
 export class Board
 {
     private router;

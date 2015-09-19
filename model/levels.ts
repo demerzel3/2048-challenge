@@ -25,3 +25,15 @@ Levels = new Mongo.Collection('levels', {
         return new Level(data);
     }
 });
+
+Levels.allow({
+    insert: function (level:Level) {
+        return true;
+    },
+    update: function (level:Level, fields, modifier) {
+        return false;
+    },
+    remove: function (level:Level) {
+        return false;
+    }
+});
