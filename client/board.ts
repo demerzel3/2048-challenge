@@ -45,6 +45,6 @@ export class Board
 
     public goToRandomLevel() {
         let randomLevel = this.levelManager.getRandomLevel();
-        this.router.navigateInstruction(this.router.generate(['/play_level', {levelId: randomLevel.id}]));
+        this.router.navigateInstruction(this.router.generate(['/play_level', {levelId: randomLevel._id}]));
     }
 }

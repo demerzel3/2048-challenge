@@ -33,7 +33,7 @@ const INDEX_TO_VALUE = {
 
 export class LevelManager {
 
-    private getById(id:string, type:string = 'user_generated') {
+    public getById(id:string, type:string = 'user_generated'):ILevel {
         let level = Levels.findOne(id);
         if (!level) {
             let maxValue = 2;
@@ -51,7 +51,7 @@ export class LevelManager {
         return level;
     }
 
-    public getRandomLevel() {
+    public getRandomLevel():ILevel {
         let grid = new Grid(4);
 
         let possibleMaxValues = [256, 512, 1024];
@@ -94,7 +94,7 @@ export class LevelManager {
         return this.getById(this.computeLevelId(grid), 'random');
     }
 
-    public computeLevelId(grid:Grid) {
+    public computeLevelId(grid:Grid):string {
         let id = [];
         grid.eachCell((x, y, tile:Tile) => {
             let pos = y*grid.size + x;
@@ -104,9 +104,9 @@ export class LevelManager {
         return id.join('');
     }
 
-    public getGridForLevel(level) {
+    public getGridForLevel(level:ILevel) {
         let grid = new Grid(4);
-        let id = level.id;
+        let id = level._id;
 
         for (let i = 0, il = id.length; i < il; i++) {
             let value = INDEX_TO_VALUE[id[i]];

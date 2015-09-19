@@ -1,17 +1,13 @@
-export interface Position {
-    x:number;
-    y:number;
-}
 
 export class Tile {
     public x:number;
     public y:number;
     public value:number;
 
-    public previousPosition:Position;
-    public mergedFrom:Tile;
+    public previousPosition:IPosition;
+    public mergedFrom:Tile[];
 
-    constructor(position:Position, value:number) {
+    constructor(position:IPosition, value:number) {
         this.x = position.x;
         this.y = position.y;
         this.value = value || 2;
@@ -24,7 +20,7 @@ export class Tile {
         this.previousPosition = {x: this.x, y: this.y};
     }
 
-    public updatePosition(position:Position) {
+    public updatePosition(position:IPosition) {
         this.x = position.x;
         this.y = position.y;
     }

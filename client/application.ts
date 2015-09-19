@@ -19,7 +19,7 @@ import {Board} from './board';
     {path: '/play/:levelId', as: 'play_level', component: Board},
 ])
 class Application {
-    constructor(@Inject(Router) router:Router) {
+    constructor(@Inject(Router) router) {
 
         Meteor.subscribe('all-levels');
 

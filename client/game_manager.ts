@@ -7,7 +7,7 @@ import {KeyboardInputManager} from './keyboard_input_manager';
 import {LocalStorageManager} from './local_storage_manager';
 
 export class GameManager {
-    private level;
+    private level:ILevel;
 
     private levelManager:LevelManager;
     private inputManager;
