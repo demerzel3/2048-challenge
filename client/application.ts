@@ -21,10 +21,13 @@ import {Board} from './board';
 class Application {
     constructor(@Inject(Router) router) {
 
-        Meteor.subscribe('all-levels');
-
         // Route user on login.
         Tracker.autorun(() => {
+            Meteor.subscribe('all-levels', Meteor.userId());
+            Meteor.subscribe('user-levels');
+            Meteor.subscribe('user-games');
+            Meteor.subscribe('active-games');
+
             if (Meteor.userId()) {
                 router.navigateInstruction(router.generate(['/play']));
             } else {
