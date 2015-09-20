@@ -19,6 +19,7 @@ export class GameManager {
     private over:boolean = false;
     private won:boolean = false;
     private boundToInputManager:boolean = false;
+    private isReplaying:boolean = false;
 
     constructor(@Inject(LevelManager) levelManager:LevelManager,
                 @Inject(KeyboardInputManager) inputManager,
@@ -35,7 +36,12 @@ export class GameManager {
 
         if (game) {
             this.gameTracker = Tracker.autorun(() => {
+                let prevGame = this.game;
                 this.game = Games.findOne(game._id);
+                if (!this.isReplaying && prevGame && prevGame._id === this.game._id && this.game.nMoves > this.nMoves) {
+                    // need to sync moves
+                    this.replayMove();
+                }
             });
             this.level = this.levelManager.getById(game.levelId);
             this.bindInput();
@@ -51,6 +57,25 @@ export class GameManager {
         this.boundToInputManager = true;
         this.inputManager.on("move", this.move.bind(this));
         this.inputManager.on("restart", this.restart.bind(this));
+    }
+
+    public replayMove() {
+        if (this.game.nMoves === this.nMoves) {
+            this.bindInput();
+            this.isReplaying = false;
+            return;
+        }
+
+        this.isReplaying = true;
+        // Start ignoring user input.
+        this.inputManager.clearEventListeners();
+
+        this.move(this.game.turns[this.nMoves].direction);
+
+        // Replay the next move.
+        window.setTimeout(() => {
+            this.replayMove();
+        }, 800);
     }
 
     // Restart the game
@@ -133,7 +158,8 @@ export class GameManager {
     public move(direction) {
         // 0: up, 1: right, 2: down, 3: left
 
-        if (this.isGameTerminated()) return; // Don't do anything if the game's over
+        // Don't do anything if the game's over
+        if (this.isGameTerminated()) return;
 
         var cell, tile;
 
@@ -180,30 +206,40 @@ export class GameManager {
 
         if (moved) {
             this.nMoves++;
-            let spawnTile = this.addRandomTile();
+            let spawnTile;
+
+            if (this.isReplaying) {
+                // Insert the requested tile.
+                let turnTileInfo = this.game.turns[this.nMoves-1].spawnTile;
+                this.grid.insertTile(new Tile({x: turnTileInfo.x, y: turnTileInfo.y}, turnTileInfo.value));
+            } else {
+                spawnTile = this.addRandomTile()
+            }
 
             if (!this.movesAvailable()) {
                 this.over = true; // Game over!
             }
 
-            // Save the new state of the game
-            Games.update(this.game._id, {
-                $inc: {
-                    nMoves: 1,
-                },
-                $set: {
-                    lastMovedAt: new Date(),
-                    lastGridState: this.grid.serialize(),
-                    won: this.won,
-                    over: this.over,
-                },
-                $push: {
-                    turns: {
-                        direction: direction,
-                        spawnTile: spawnTile ? spawnTile.serialize() : null,
+            if (!this.isReplaying) {
+                // Save the new state of the game
+                Games.update(this.game._id, {
+                    $inc: {
+                        nMoves: 1,
+                    },
+                    $set: {
+                        lastMovedAt: new Date(),
+                        lastGridState: this.grid.serialize(),
+                        won: this.won,
+                        over: this.over,
+                    },
+                    $push: {
+                        turns: {
+                            direction: direction,
+                            spawnTile: spawnTile ? spawnTile.serialize() : null,
+                        }
                     }
-                }
-            });
+                });
+            }
 
             this.actuate();
         }

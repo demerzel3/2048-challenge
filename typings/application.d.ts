@@ -19,7 +19,7 @@ interface IUserLevel {
 }
 
 interface IGameTurn {
-    move:string;
+    direction:number;
     spawnTile: {x:number, y:number, value:number}
 }
 
