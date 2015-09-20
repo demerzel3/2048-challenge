@@ -21,8 +21,9 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
             });
         });
 
-        self.updateScore(metadata.score);
-        self.updateBestScore(metadata.bestScore);
+        // TODO: get rid of these
+        //self.updateScore(metadata.score);
+        //self.updateBestScore(metadata.bestScore);
 
         if (metadata.terminated) {
             if (metadata.over) {

@@ -1,5 +1,5 @@
 import {Component, View, Inject, bootstrap} from 'angular2/angular2';
-import {ROUTER_DIRECTIVES, Router, RouteParams, CanActivate} from 'angular2/router';
+import {ROUTER_DIRECTIVES, Router, RouteParams, CanActivate, OnDeactivate} from 'angular2/router';
 import {GameManager} from './game_manager';
 import {KeyboardInputManager} from './keyboard_input_manager';
 import {HTMLActuator} from './html_actuator';
@@ -12,12 +12,15 @@ import {LevelManager} from './service/level_manager';
     directives: [ROUTER_DIRECTIVES],
 })
 @CanActivate(() => !!Meteor.userId())
-export class Board
+export class Board implements OnDeactivate
 {
     private router;
     private gameManager:GameManager;
     private levelManager:LevelManager;
-    private level;
+    private game:IGame;
+    private level:ILevel;
+
+    private gameTracker:Tracker.Computation;
 
     constructor(
         @Inject(Router) router,
@@ -31,20 +34,73 @@ export class Board
 
         let levelId = routeParams.params.levelId;
         if (!levelId) {
-            this.goToRandomLevel();
+            this.goToLatestGameLevel();
             return;
         }
 
         this.level = this.levelManager.getById(levelId);
+        let game = this.getOrCreateGame(this.level);
+        this.gameManager.setGame(game);
 
-        // Wait till the browser is ready to render the game (avoids glitches)
-        window.requestAnimationFrame(() => {
-            this.gameManager.setLevel(this.level);
+        this.gameTracker = Tracker.autorun(zone.bind(() => {
+            this.game = Games.findOne(game._id);
+        }));
+    }
+
+    public onDeactivate() {
+        if (this.gameTracker) {
+            this.gameTracker.stop();
+        }
+    }
+
+    public getOrCreateGame(level:ILevel) {
+        let game = Games.findOne({
+            userId: Meteor.userId(),
+            levelId: level._id,
+            won: false,
+            over: false,
+        }, {
+            sort: {lastMovedAt: -1},
         });
+        if (!game) {
+            game = Games.findOne(Games.insert({
+                userId: Meteor.userId(),
+                levelId: level._id,
+                won: false,
+                over: false,
+                nMoves: 0,
+                time: 0,
+                createdAt: new Date(),
+                lastMovedAt: new Date(),
+                lastGridState: null,
+                turns: [],
+            }));
+        }
+        return game;
+    }
+
+    public goToLatestGameLevel() {
+        let game = Games.findOne({
+            userId: Meteor.userId(),
+            won: false,
+            over: false,
+        }, {
+            sort: {lastMovedAt: -1},
+        });
+
+        if (game) {
+            this.goToLevel(game.levelId);
+        } else {
+            this.goToRandomLevel();
+        }
     }
 
     public goToRandomLevel() {
         let randomLevel = this.levelManager.getRandomLevel();
-        this.router.navigateInstruction(this.router.generate(['/play_level', {levelId: randomLevel._id}]));
+        this.goToLevel(randomLevel._id);
+    }
+
+    public goToLevel(id:string) {
+        this.router.navigateInstruction(this.router.generate(['/play_level', {levelId: id}]));
     }
 }

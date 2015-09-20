@@ -1,16 +1,56 @@
 import {Tile} from './tile';
 
+// Used during serialization
+const VALUE_TO_INDEX = {
+    0:      '0',
+    2:      '1',
+    4:      '2',
+    8:      '3',
+    16:     '4',
+    32:     '5',
+    64:     '6',
+    128:    '7',
+    256:    '8',
+    512:    '9',
+    1024:   'A',
+    2048:   'B',
+    4096:   'C',
+    8192:   'D',
+    16384:  'E',
+    32768:  'F',
+};
+
+// Used during deserialization
+const INDEX_TO_VALUE = {
+    0: 0,
+    1: 2,
+    2: 4,
+    3: 8,
+    4: 16,
+    5: 32,
+    6: 64,
+    7: 128,
+    8: 256,
+    9: 512,
+    A: 1024,
+    B: 2048,
+    C: 4096,
+    D: 8192,
+    E: 16384,
+    F: 32768,
+};
+
 export class Grid {
     public size;
     public cells;
 
-    constructor(size, previousState = null) {
+    constructor(size) {
         this.size = size;
-        this.cells = previousState ? this.fromState(previousState) : this.empty();
+        this.cells = this.empty();
     }
 
     // Build a grid of the specified size
-    public empty() {
+    private empty() {
         var cells = [];
 
         for (var x = 0; x < this.size; x++) {
@@ -18,21 +58,6 @@ export class Grid {
 
             for (var y = 0; y < this.size; y++) {
                 row.push(null);
-            }
-        }
-
-        return cells;
-    }
-
-    public fromState(state) {
-        var cells = [];
-
-        for (var x = 0; x < this.size; x++) {
-            var row = cells[x] = [];
-
-            for (var y = 0; y < this.size; y++) {
-                var tile = state[x][y];
-                row.push(tile ? new Tile(tile.position, tile.value) : null);
             }
         }
 
@@ -117,20 +142,42 @@ export class Grid {
             position.y >= 0 && position.y < this.size;
     }
 
+    public getMaxValue() {
+        let max = 2;
+        this.eachCell((x, y, tile) => {
+            if (tile) {
+                max = Math.max(max, tile.value);
+            }
+        });
+
+        return max;
+    }
+
     public serialize() {
-        var cellState = [];
+        let id = [];
+        this.eachCell((x, y, tile:Tile) => {
+            let pos = y*this.size + x;
+            id[pos] = tile ? VALUE_TO_INDEX[tile.value] : '0';
+        });
 
-        for (var x = 0; x < this.size; x++) {
-            var row = cellState[x] = [];
+        return id.join('');
+    }
 
-            for (var y = 0; y < this.size; y++) {
-                row.push(this.cells[x][y] ? this.cells[x][y].serialize() : null);
+    public static deserialize(state:string) {
+        let size = Math.sqrt(state.length);
+        let grid = new Grid(size);
+        let id = state;
+
+        for (let i = 0, il = id.length; i < il; i++) {
+            let value = INDEX_TO_VALUE[id[i]];
+            let y = Math.floor(i / grid.size);
+            let x = i % grid.size;
+
+            if (value > 0) {
+                grid.insertTile(new Tile({x: x, y: y}, value));
             }
         }
 
-        return {
-            size: this.size,
-            cells: cellState
-        };
+        return grid;
     }
 }

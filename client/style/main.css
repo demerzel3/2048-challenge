@@ -68,7 +68,7 @@ h1.title {
     text-align: right;
 }
 
-.score-container, .best-container {
+.nmoves-container, .best-container {
     position: relative;
     display: inline-block;
     background: #bbada0;
@@ -83,7 +83,7 @@ h1.title {
     text-align: center;
 }
 
-.score-container:after, .best-container:after {
+.nmoves-container:after, .best-container:after {
     position: absolute;
     width: 100%;
     top: 10px;
@@ -95,7 +95,7 @@ h1.title {
     color: #eee4da;
 }
 
-.score-container .score-addition, .best-container .score-addition {
+.nmoves-container .score-addition, .best-container .score-addition {
     position: absolute;
     right: 30px;
     color: red;
@@ -112,8 +112,8 @@ h1.title {
     animation-fill-mode: both;
 }
 
-.score-container:after {
-    content: "Score";
+.nmoves-container:after {
+    content: "Moves";
 }
 
 .best-container:after {
@@ -702,7 +702,7 @@ hr {
         margin: 0 auto;
     }
 
-    .score-container, .best-container {
+    .nmoves-container, .best-container {
         margin-top: 0;
         padding: 15px 10px;
         min-width: 40px;

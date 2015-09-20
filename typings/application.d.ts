@@ -2,6 +2,8 @@ declare var Levels:Mongo.Collection<ILevel>;
 declare var UserLevels:Mongo.Collection<IUserLevel>;
 declare var Games:Mongo.Collection<IGame>;
 
+declare var zone;
+
 interface ILevel {
     _id:string;
     target:number;
@@ -31,6 +33,7 @@ interface IGame {
     nMoves:number;
     time:number;
     lastMovedAt:Date;
+    lastGridState:string;
     turns:IGameTurn[];
 }
 

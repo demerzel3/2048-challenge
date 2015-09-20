@@ -27,11 +27,9 @@ export class Tile {
 
     public serialize() {
         return {
-            position: {
-                x: this.x,
-                y: this.y
-            },
-            value: this.value
+            x: this.x,
+            y: this.y,
+            value: this.value,
         };
     }
 }

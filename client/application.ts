@@ -3,7 +3,6 @@ import {ROUTER_BINDINGS, ROUTER_DIRECTIVES, Router, RouteConfig} from 'angular2/
 import {LevelManager} from './service/level_manager';
 import {HTMLActuator} from './html_actuator';
 import {KeyboardInputManager} from './keyboard_input_manager';
-import {LocalStorageManager} from './local_storage_manager';
 import {GameManager} from './game_manager';
 import {Home} from './home';
 import {Board} from './board';
@@ -74,5 +73,5 @@ class Application {
 
 bootstrap(Application, [
     ROUTER_BINDINGS,
-    LevelManager, HTMLActuator, KeyboardInputManager, LocalStorageManager, GameManager
+    LevelManager, HTMLActuator, KeyboardInputManager, GameManager
 ]);
