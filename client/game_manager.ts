@@ -8,7 +8,6 @@ import {KeyboardInputManager} from './keyboard_input_manager';
 export class GameManager {
     private game:IGame;
     private level:ILevel;
-    private gameTracker:Tracker.Computation;
 
     private levelManager:LevelManager;
     private inputManager;
@@ -30,22 +29,18 @@ export class GameManager {
     }
 
     public setGame(game:IGame) {
-        if (this.gameTracker) {
-            this.gameTracker.stop();
-        }
-
         if (game) {
-            this.gameTracker = Tracker.autorun(() => {
-                let prevGame = this.game;
-                this.game = Games.findOne(game._id);
-                if (!this.isReplaying && prevGame && prevGame._id === this.game._id && this.game.nMoves > this.nMoves) {
-                    // need to sync moves
-                    this.replayMove();
-                }
-            });
-            this.level = this.levelManager.getById(game.levelId);
-            this.bindInput();
-            this.restart();
+            let prevGame = this.game;
+            this.game = game;
+            if (!this.isReplaying && prevGame && prevGame._id === this.game._id && this.game.nMoves > this.nMoves) {
+                // need to sync moves
+                this.replayMove();
+            }
+            if (!prevGame || prevGame._id !== this.game._id) {
+                this.level = this.levelManager.getById(game.levelId);
+                this.bindInput();
+                this.restart();
+            }
         }
     }
 
@@ -59,6 +54,11 @@ export class GameManager {
         this.inputManager.on("restart", this.restart.bind(this));
     }
 
+    private unbindInput() {
+        this.inputManager.clearEventListeners();
+        this.boundToInputManager = false;
+    }
+
     public replayMove() {
         if (this.game.nMoves === this.nMoves) {
             this.bindInput();
@@ -68,7 +68,7 @@ export class GameManager {
 
         this.isReplaying = true;
         // Start ignoring user input.
-        this.inputManager.clearEventListeners();
+        this.unbindInput();
 
         this.move(this.game.turns[this.nMoves].direction);
 

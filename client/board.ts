@@ -53,11 +53,18 @@ export class Board implements OnDeactivate
             return;
         }
 
+        this.game = game;
         this.levelManager.getById(levelId);
-        this.gameManager.setGame(game);
+        this.gameManager.setGame(this.game);
 
         this.gameTracker = Tracker.autorun(zone.bind(() => {
-            this.game = Games.findOne(game._id);
+            let game = this.getLatestGame();
+            if (game._id !== this.game._id && game.levelId !== this.game.levelId) {
+                this.goToLevel(game.levelId);
+            } else {
+                this.game = game;
+                this.gameManager.setGame(this.game);
+            }
         }));
 
         this.levelTracker = Tracker.autorun(zone.bind(() => {
@@ -68,9 +75,11 @@ export class Board implements OnDeactivate
     public onDeactivate() {
         if (this.gameTracker) {
             this.gameTracker.stop();
+            this.gameTracker = null;
         }
         if (this.levelTracker) {
             this.levelTracker.stop();
+            this.levelTracker = null;
         }
     }
 
@@ -98,13 +107,7 @@ export class Board implements OnDeactivate
     }
 
     public retryLevel() {
-        let game = this.createNewGame(this.level);
-        this.gameManager.setGame(game);
-
-        this.gameTracker.stop();
-        this.gameTracker = Tracker.autorun(zone.bind(() => {
-            this.game = Games.findOne(game._id);
-        }));
+        this.createNewGame(this.level);
     }
 
     public nextLevel() {

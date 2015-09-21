@@ -87,6 +87,11 @@ KeyboardInputManager.prototype.listen = function () {
             return; // Ignore if touching with more than 1 finger
         }
 
+        // Ignore any touch start inside a game message
+        if ($(event.target).closest('.game-message').length) {
+            return;
+        }
+
         if (window.navigator.msPointerEnabled) {
             touchStartClientX = event.pageX;
             touchStartClientY = event.pageY;
