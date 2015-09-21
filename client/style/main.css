@@ -210,9 +210,9 @@ hr {
     background: rgba(238, 228, 218, 0.5);
     z-index: 100;
     text-align: center;
-    -webkit-animation: fade-in 800ms ease 1200ms;
-    -moz-animation: fade-in 800ms ease 1200ms;
-    animation: fade-in 800ms ease 1200ms;
+    -webkit-animation: fade-in 800ms ease 500ms;
+    -moz-animation: fade-in 800ms ease 500ms;
+    animation: fade-in 800ms ease 500ms;
     -webkit-animation-fill-mode: both;
     -moz-animation-fill-mode: both;
     animation-fill-mode: both;
@@ -758,9 +758,9 @@ hr {
         background: rgba(238, 228, 218, 0.5);
         z-index: 100;
         text-align: center;
-        -webkit-animation: fade-in 800ms ease 1200ms;
-        -moz-animation: fade-in 800ms ease 1200ms;
-        animation: fade-in 800ms ease 1200ms;
+        -webkit-animation: fade-in 800ms ease 500ms;
+        -moz-animation: fade-in 800ms ease 500ms;
+        animation: fade-in 800ms ease 500ms;
         -webkit-animation-fill-mode: both;
         -moz-animation-fill-mode: both;
         animation-fill-mode: both;

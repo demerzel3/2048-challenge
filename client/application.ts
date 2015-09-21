@@ -51,7 +51,9 @@ class Application {
         // Route user on login.
         Tracker.autorun(() => {
             if (Meteor.userId()) {
-                this.router.navigateInstruction(this.router.generate(['/play']));
+                if (this.router.lastNavigationAttempt.substr(0, 5) !== '/play') {
+                    this.router.navigateInstruction(this.router.generate(['/play']));
+                }
             } else {
                 this.router.navigateInstruction(this.router.generate(['/home']));
             }

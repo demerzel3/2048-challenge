@@ -94,8 +94,8 @@ export class GameManager {
         let gridState = this.game.lastGridState || this.level._id;
 
         this.grid = Grid.deserialize(gridState);
-        this.over = false;
-        this.won = false;
+        this.over = this.game.over;
+        this.won = this.game.won;
         this.nMoves = this.game.nMoves;
 
         // Update the actuator

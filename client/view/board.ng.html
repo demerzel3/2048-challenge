@@ -10,7 +10,7 @@
 <div class="above-game">
     <p class="game-intro">Join the numbers and get to the <strong>{{level.target}} tile!</strong></p>
     <a style="float:right; font-size: 0.8em; font-weight: normal; line-height: 40px;"
-       (click)="goToRandomLevel()">Skip this level &raquo;</a>
+       (click)="nextLevel()">Skip this level &raquo;</a>
 </div>
 
 <div class="game-container">
@@ -18,8 +18,8 @@
         <p></p>
 
         <div class="lower">
-            <a class="retry-button">Play again</a>
-            <a class="keep-playing-button" (click)="goToRandomLevel()">NEXT &raquo;</a>
+            <a class="retry-button" (click)="retryLevel()">Play again</a>
+            <a class="keep-playing-button" (click)="nextLevel()">NEXT &raquo;</a>
         </div>
     </div>
 
