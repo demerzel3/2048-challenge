@@ -1,6 +1,7 @@
 @import "_helpers"
 
-$field-width = 500px
+$field-width = 460px
+$field-height = 500px
 $grid-spacing = 10px
 $grid-row-cells = 4
 $tile-border-radius = 3px
@@ -15,6 +16,7 @@ $game-container-margin-top = 40px
 $game-container-background = #bbada0
 //$game-container-background = #faf8ef
 $transition-speed = 100ms
+$page-background-color = #faf8ef
 
 $tile-values =       2       4       8      16      32      64     128     256     512    1024    2048    4096
 $tile-colors = #efd9c5 #d6c0af #bfa997 #f97e3e #fe7011 #f64f09 #fcd834 #f8c609 #f8b602 #c105bd #800199 #60018c
@@ -22,7 +24,7 @@ $tile-colors = #efd9c5 #d6c0af #bfa997 #f97e3e #fe7011 #f64f09 #fcd834 #f8c609 #
 html, body
     margin: 0
     padding: 0
-    background: #faf8ef
+    background: $page-background-color
     color: $text-color
     font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif
     font-size: 18px
@@ -123,12 +125,13 @@ button()
     line-height: 42px
 
 // Game field mixin used to render CSS at different width
-game-field($field-width, $grid-spacing)
-    $tile-size = ($field-width - $grid-spacing * ($grid-row-cells + 1)) / $grid-row-cells
+game-field($field-width, $field-height, $grid-spacing)
+    $tile-width = ($field-width - $grid-spacing * ($grid-row-cells - 1)) / $grid-row-cells
+    $tile-height = ($field-height - $grid-spacing * ($grid-row-cells - 1)) / $grid-row-cells
     .game-container
         margin-top: $game-container-margin-top
         position: relative
-        padding: $grid-spacing
+        //padding: $grid-spacing
         cursor: default
         -webkit-touch-callout: none
         -ms-touch-callout: none
@@ -189,12 +192,12 @@ game-field($field-width, $grid-spacing)
             display: block
             clear: both
     .grid-cell
-        width: $tile-size
-        height: $tile-size
+        width: $tile-width
+        height: $tile-height
         margin-right: $grid-spacing
         float: left
         border-radius: $tile-border-radius
-        background: rgba($tile-color, 0.35)
+        background: desaturate(darken($page-background-color, 5%), 20%)
         &:last-child
             margin-right: 0
     .tile-container
@@ -202,18 +205,18 @@ game-field($field-width, $grid-spacing)
         z-index: 2
     .tile
         &, .tile-inner
-            width: ceil($tile-size)
-            height: ceil($tile-size)
-            line-height: ceil($tile-size)
+            width: ceil($tile-width)
+            height: ceil($tile-height)
+            line-height: ceil($tile-height)
         // Build position classes
         for $x in 1..$grid-row-cells
             for $y in 1..$grid-row-cells
                 &.tile-position-{$x}-{$y}
-                    $xPos = floor(($tile-size + $grid-spacing) * ($x - 1))
-                    $yPos = floor(($tile-size + $grid-spacing) * ($y - 1))
+                    $xPos = floor(($tile-width + $grid-spacing) * ($x - 1))
+                    $yPos = floor(($tile-height + $grid-spacing) * ($y - 1))
                     transform(translate($xPos, $yPos))
 
-game-field($field-width, $grid-spacing)
+game-field($field-width, $field-height, $grid-spacing)
 
 .tile
     position: absolute
@@ -225,7 +228,7 @@ game-field($field-width, $grid-spacing)
         text-align: center
         font-weight: 200
         z-index: 10
-        font-size: 55px
+        //font-size: 55px
     // Movement transition
     transition($transition-speed ease-in-out)
     -webkit-transition-property: -webkit-transform
@@ -239,7 +242,7 @@ game-field($field-width, $grid-spacing)
             text-shadow: darken($tile-colors[$i], 20%) 0 3px 10px
             color: $bright-text-color
             background: $tile-colors[$i]
-            font-size: 35px
+            font-size: 30px
             +smaller($mobile-threshold)
                 font-size: 20px;
 
@@ -337,7 +340,7 @@ game-field($field-width, $grid-spacing)
     }
 
     // Render the game field at the right width
-    game-field(280px, 5px);
+    game-field(280px, 300px, 5px);
 
     .game-container {
         margin-top: 5px;
