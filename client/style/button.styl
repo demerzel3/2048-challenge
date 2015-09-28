@@ -1,0 +1,38 @@
+button {
+    border none
+    color $textColor
+    font-size 1.9em
+    font-weight 200
+    padding 0.5em 0.8em
+    border-radius 5px
+    cursor pointer
+    height 120px
+    border-bottom solid 10px
+    box-sizing border-box
+
+    &:active, &:focus {
+        outline none
+    }
+
+    &:active {
+        position relative
+        border-bottom-width 5px
+        height 115px
+        top 5px
+        margin-bottom 5px
+    }
+}
+
+button.play, button.next {
+    color white
+    background-color #38c00e
+    border-bottom-color darken(#38c00e, 20%)
+}
+
+button.retry {
+    color white
+    background-color #bfa997
+    border-bottom-color darken(#bfa997, 20%)
+    //background-color #f8b602
+    //border-bottom-color darken(#f8b602, 20%)
+}

@@ -1,0 +1,76 @@
+pre-game-modal {
+
+    $backColor = #776e65
+    $textColor = white
+
+    h1 {
+        position relative
+        margin 0.5em 0
+        &:before {
+            content "LEVEL"
+            display block
+            font-size 0.4em
+            font-weight normal
+        }
+    }
+
+    h2 {
+        text-align left
+        background-color lighten($backColor, 10%)
+        padding 0.4em 1em
+        margin 0.5em 0
+    }
+
+    a {
+        display block
+        color darken($textColor, 20%)
+        font-weight 200
+        margin-top 1em
+    }
+
+    .clearfix:before,
+    .clearfix:after {
+        content: " ";
+        display: table;
+    }
+
+    .clearfix:after {
+        clear: both;
+    }
+
+    .target {
+        box-sizing border-box
+        float left
+        font-size 2em
+        font-weight 200
+        width 50%
+    }
+
+    .prize {
+        box-sizing border-box
+        float left
+        width 50%
+        list-style-type none
+        padding 0.5em 1.5em 0 0
+        margin 0
+        font-size 1.2em
+        text-align right
+        position relative
+        font-weight 200
+
+        .stars {
+            position absolute
+            left 1em
+            display inline-block
+            text-align center
+            width 70px
+        }
+    }
+
+    .tile {
+        position static
+        display inline-block
+        margin-left 10px
+        vertical-align middle
+    }
+}

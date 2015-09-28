@@ -1,10 +1,13 @@
-import {Component, View, Inject, bootstrap} from 'angular2/angular2';
+import {Component, View, Inject, Injector, Binding, bind, bootstrap, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/angular2';
 import {ROUTER_DIRECTIVES, Router, RouteParams, CanActivate, OnDeactivate} from 'angular2/router';
 import {GameManager} from './game_manager';
 import {KeyboardInputManager} from './keyboard_input_manager';
 import {HTMLActuator} from './html_actuator';
 import {LocalStorageManager} from './local_storage_manager';
 import {LevelManager} from './service/level_manager';
+import {BeforeGameModal, IBeforeGameModalParams} from './component/before_game_modal';
+import {WonModal, IWonModalParams} from './component/won_modal';
+import {Home} from './home';
 
 @Component({selector: 'board'})
 @View({
@@ -14,24 +17,30 @@ import {LevelManager} from './service/level_manager';
 @CanActivate(() => !!Meteor.userId())
 export class Board implements OnDeactivate
 {
+    private elementRef:ElementRef;
     private router;
     private gameManager:GameManager;
     private levelManager:LevelManager;
     private game:IGame;
     private level:ILevel;
+    private componentLoader:DynamicComponentLoader;
 
     private levelTracker:Tracker.Computation;
     private gameTracker:Tracker.Computation;
 
     constructor(
+        @Inject(ElementRef) elementRef,
         @Inject(Router) router,
         @Inject(RouteParams) routeParams,
         @Inject(LevelManager) levelManager:LevelManager,
-        @Inject(GameManager) gameManager:GameManager
+        @Inject(GameManager) gameManager:GameManager,
+        @Inject(DynamicComponentLoader) componentLoader:DynamicComponentLoader
     ) {
+        this.componentLoader = componentLoader;
         this.router = router;
         this.levelManager = levelManager;
         this.gameManager = gameManager;
+        this.elementRef = elementRef;
 
         let game = this.getLatestGame();
         let levelId = routeParams.params.levelId;
@@ -70,6 +79,32 @@ export class Board implements OnDeactivate
         this.levelTracker = Tracker.autorun(zone.bind(() => {
             this.level = Levels.findOne(levelId);
         }));
+
+        /*
+        const bindings = Injector.resolve([
+            bind(IBeforeGameModalParams).toValue({
+                level: this.level,
+                game: this.game,
+            }),
+        ]);
+
+        this.componentLoader.loadNextToLocation(new Binding(BeforeGameModal, {toClass: BeforeGameModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
+            modalRef.instance.show();
+        })
+        */
+
+        /*
+        const bindings = Injector.resolve([
+            bind(IWonModalParams).toValue({
+                level: this.level,
+                game: this.game,
+            }),
+        ]);
+
+        this.componentLoader.loadNextToLocation(new Binding(WonModal, {toClass: WonModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
+            modalRef.instance.show();
+        })
+        */
     }
 
     public onDeactivate() {
