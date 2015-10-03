@@ -80,7 +80,6 @@ export class Board implements OnDeactivate
             this.level = Levels.findOne(levelId);
         }));
 
-        /*
         const bindings = Injector.resolve([
             bind(IBeforeGameModalParams).toValue({
                 level: this.level,
@@ -89,9 +88,10 @@ export class Board implements OnDeactivate
         ]);
 
         this.componentLoader.loadNextToLocation(new Binding(BeforeGameModal, {toClass: BeforeGameModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
-            modalRef.instance.show();
-        })
-        */
+            return modalRef.instance.getResult();
+        }).then((result) => {
+            console.log('Modal result', result);
+        });
 
         /*
         const bindings = Injector.resolve([

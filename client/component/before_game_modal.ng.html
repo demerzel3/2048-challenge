@@ -1,4 +1,4 @@
-<modal [visible]="isVisible">
+<modal #modal>
     <h1>{{level._id}}</h1>
     <div class="clearfix">
         <div class="target">
@@ -16,6 +16,6 @@
         </ul>
     </div>
     <h2>Game #220 <span class="tries">1st try</span></h2>
-    <button class="play">Play Now</button>
-    <a href>Skip this level &raquo;</a>
+    <button class="play" (click)="play()">Play Now</button>
+    <a href (click)="skip()">Skip this level &raquo;</a>
 </modal>

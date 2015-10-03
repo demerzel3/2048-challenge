@@ -1,4 +1,13 @@
-import {Component, View, Inject, ViewEncapsulation, NgClass, OnChanges} from 'angular2/angular2';
+import {Component, View, Inject, ViewEncapsulation, NgClass} from 'angular2/angular2';
+
+enum States {
+    Hidden,
+    Showing,
+    Shown,
+    Hiding,
+    HidingLeft,
+    HidingRight,
+}
 
 @Component({
     selector: 'modal',
@@ -9,19 +18,26 @@ import {Component, View, Inject, ViewEncapsulation, NgClass, OnChanges} from 'an
     encapsulation: ViewEncapsulation.None,
     directives: [NgClass],
 })
-export class Modal implements OnChanges {
-    private isVisible = false;
-    private animate = false;
+export class Modal {
+    // Used to control animation. When this is false, the modal is completely off screen.
+    private isIn = false;
+    private isCentered = false;
+
+    private state:States = States.Hidden;
 
     show() {
-        this.isVisible = true;
+        this.isIn = true;
+        window.setTimeout(zone.bind(() => {
+            this.isCentered = true;
+        }));
     }
 
-    onChanges(changes: StringMap<string, any>) {
-        if (changes['isVisible'] && changes['isVisible'].currentValue) {
-            window.setTimeout(zone.bind(() => {
-                this.animate = true;
-            }), 100);
-        }
+    hide() {
+        this.isCentered = false;
+    }
+
+    onTransitionEnd(event) {
+        console.log(event.target);
+        console.log('modal animation end');
     }
 }
