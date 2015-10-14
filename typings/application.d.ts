@@ -4,6 +4,25 @@ declare var Games:Mongo.Collection<IGame>;
 
 declare var zone;
 
+declare var StateMachine:IStateMachineStatic;
+
+interface IStateMachineDefinition {
+    initial:string;
+    events:any;
+}
+
+interface IStateMachineStatic {
+    create(def:IStateMachineDefinition):IStateMachine;
+}
+
+interface IStateMachine {
+    current:string;
+    is(event:string):boolean;
+    can(event:string):boolean;
+    cannot(event:string):boolean;
+    transitions():string[];
+}
+
 interface ILevel {
     _id:string;
     target:number;

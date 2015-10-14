@@ -6,7 +6,7 @@ import {HTMLActuator} from './html_actuator';
 import {LocalStorageManager} from './local_storage_manager';
 import {LevelManager} from './service/level_manager';
 import {BeforeGameModal, IBeforeGameModalParams} from './component/before_game_modal';
-import {WonModal, IWonModalParams} from './component/won_modal';
+//import {WonModal, IWonModalParams} from './component/won_modal';
 import {Home} from './home';
 
 @Component({selector: 'board'})
@@ -90,7 +90,7 @@ export class Board implements OnDeactivate
         this.componentLoader.loadNextToLocation(new Binding(BeforeGameModal, {toClass: BeforeGameModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
             return modalRef.instance.getResult();
         }).then((result) => {
-            console.log('Modal result', result);
+            console.log('Modal result', result === BeforeGameModal.ACTION_PLAY ? 'play' : 'skip');
         });
 
         /*

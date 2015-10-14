@@ -1,5 +1,5 @@
-<div class="modal"
+<div class="modal modal-{{position}}"
      (transitionend)="onTransitionEnd($event)"
-     [ng-class]="{'modal-in': isIn, 'modal-centered': isCentered}">
+     [ng-class]="{'modal-in': isIn}">
     <ng-content></ng-content>
 </div>
