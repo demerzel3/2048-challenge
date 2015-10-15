@@ -6,7 +6,7 @@ import {HTMLActuator} from './html_actuator';
 import {LocalStorageManager} from './local_storage_manager';
 import {LevelManager} from './service/level_manager';
 import {BeforeGameModal, IBeforeGameModalParams} from './component/before_game_modal';
-//import {WonModal, IWonModalParams} from './component/won_modal';
+import {WonModal, IWonModalParams} from './component/won_modal';
 import {Home} from './home';
 
 @Component({selector: 'board'})
@@ -93,7 +93,6 @@ export class Board implements OnDeactivate
             console.log('Modal result', result === BeforeGameModal.ACTION_PLAY ? 'play' : 'skip');
         });
 
-        /*
         const bindings = Injector.resolve([
             bind(IWonModalParams).toValue({
                 level: this.level,
@@ -102,9 +101,18 @@ export class Board implements OnDeactivate
         ]);
 
         this.componentLoader.loadNextToLocation(new Binding(WonModal, {toClass: WonModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
-            modalRef.instance.show();
-        })
-        */
+            return modalRef.instance.getResult();
+        }).then((action) => {
+            switch (action) {
+                case WonModal.ACTION_NEXT:
+                    console.log('Modal result: NEXT');
+                    break;
+
+                case WonModal.ACTION_RETRY:
+                    console.log('Modal result: RETRY');
+                    break;
+            }
+        });
     }
 
     public onDeactivate() {

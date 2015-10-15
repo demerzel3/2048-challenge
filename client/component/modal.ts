@@ -1,4 +1,4 @@
-import {Component, View, Inject, ViewEncapsulation, NgClass, ElementRef} from 'angular2/angular2';
+import {Component, View, Inject, ViewEncapsulation, NgClass, ElementRef, AppViewManager} from 'angular2/angular2';
 import {Deferred} from '../deferred';
 
 interface IModalStateMachine extends IStateMachine {
