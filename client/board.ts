@@ -80,28 +80,16 @@ export class Board implements OnDeactivate
             this.level = Levels.findOne(levelId);
         }));
 
-        const bindings = Injector.resolve([
-            bind(IBeforeGameModalParams).toValue({
-                level: this.level,
-                game: this.game,
-            }),
-        ]);
-
-        this.componentLoader.loadNextToLocation(new Binding(BeforeGameModal, {toClass: BeforeGameModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
-            return modalRef.instance.getResult();
+        this.showBeforeGameModal({
+            level: this.level,
+            game: this.game,
         }).then((result) => {
             console.log('Modal result', result === BeforeGameModal.ACTION_PLAY ? 'play' : 'skip');
         });
 
-        const bindings = Injector.resolve([
-            bind(IWonModalParams).toValue({
-                level: this.level,
-                game: this.game,
-            }),
-        ]);
-
-        this.componentLoader.loadNextToLocation(new Binding(WonModal, {toClass: WonModal}), elementRef, bindings).then((modalRef:ComponentRef) => {
-            return modalRef.instance.getResult();
+        this.showWonModal({
+            level: this.level,
+            game: this.game,
         }).then((action) => {
             switch (action) {
                 case WonModal.ACTION_NEXT:
@@ -112,6 +100,24 @@ export class Board implements OnDeactivate
                     console.log('Modal result: RETRY');
                     break;
             }
+        });
+    }
+
+    private showBeforeGameModal(params:IBeforeGameModalParams) {
+        return this.showModal(BeforeGameModal, IBeforeGameModalParams, params);
+    }
+
+    private showWonModal(params:IWonModalParams) {
+        return this.showModal(WonModal, IWonModalParams, params);
+    }
+
+    private showModal(ModalType, ParamsType, paramsValue) {
+        const bindings = Injector.resolve([
+            bind(ParamsType).toValue(paramsValue),
+        ]);
+
+        return this.componentLoader.loadNextToLocation(new Binding(ModalType, {toClass: ModalType}), this.elementRef, bindings).then((modalRef:ComponentRef) => {
+            return modalRef.instance.getResult();
         });
     }
 
