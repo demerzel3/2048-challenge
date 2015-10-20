@@ -1,12 +1,36 @@
-export function HTMLActuator() {
-    this.tileContainer = document.querySelector(".tile-container");
-    this.scoreContainer = document.querySelector(".score-container");
-    this.bestContainer = document.querySelector(".best-container");
-    this.messageContainer = document.querySelector(".game-message");
+import {Rx} from 'rx';
+import {ElementRef} from 'angular2/angular2';
+import {GameManager} from './game_manager';
 
-    this.score = 0;
+export class HTMLActuator {
+    private tileContainer;
+    private scoreContainer;
+    private bestContainer;
+    private messageContainer;
+    private score:number;
+
+    private ondispose:Rx.Subject = new Rx.Subject();
+
+    constructor(private elementRef:ElementRef, private gameManager:GameManager) {
+        this.tileContainer = document.querySelector(".tile-container");
+        this.scoreContainer = document.querySelector(".score-container");
+        this.bestContainer = document.querySelector(".best-container");
+        this.messageContainer = document.querySelector(".game-message");
+
+        this.score = 0;
+
+        gameManager.onactuate
+            .takeUntil(this.ondispose)
+            .subscribe((event) => {
+                this.actuate(event.grid, event);
+            });
+    }
+
+    dispose() {
+        this.ondispose.onNext(null);
+        this.ondispose.onCompleted();
+    }
 }
-
 HTMLActuator.prototype.actuate = function (grid, metadata) {
     var self = this;
 
@@ -31,6 +55,8 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
             } else if (metadata.won) {
                 self.message(true); // You win!
             }
+        } else {
+            self.clearMessage();
         }
 
     });

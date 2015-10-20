@@ -1,4 +1,5 @@
 import {Component, View, Inject, Injector, Binding, bind, bootstrap, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/angular2';
+import {Rx} from 'rx';
 import {ROUTER_DIRECTIVES, Router, RouteParams, CanActivate, OnDeactivate} from 'angular2/router';
 import {GameManager} from './game_manager';
 import {KeyboardInputManager} from './keyboard_input_manager';
@@ -25,8 +26,7 @@ export class Board implements OnDeactivate
     private level:ILevel;
     private componentLoader:DynamicComponentLoader;
 
-    private levelTracker:Tracker.Computation;
-    private gameTracker:Tracker.Computation;
+    private ondeactivate:Rx.Subject = new Rx.Subject();
 
     constructor(
         @Inject(ElementRef) elementRef,
@@ -62,11 +62,17 @@ export class Board implements OnDeactivate
             return;
         }
 
+        // Manage actuator.
+        const actuator = new HTMLActuator(this.elementRef, this.gameManager);
+        this.ondeactivate.subscribeOnCompleted(() => {
+            actuator.dispose();
+        });
+
         this.game = game;
         this.levelManager.getById(levelId);
         this.gameManager.setGame(this.game);
 
-        this.gameTracker = Tracker.autorun(zone.bind(() => {
+        this.autorun(() => {
             let game = this.getLatestGame();
             if (game._id !== this.game._id && game.levelId !== this.game.levelId) {
                 this.goToLevel(game.levelId);
@@ -74,11 +80,11 @@ export class Board implements OnDeactivate
                 this.game = game;
                 this.gameManager.setGame(this.game);
             }
-        }));
+        });
 
-        this.levelTracker = Tracker.autorun(zone.bind(() => {
+        this.autorun(() => {
             this.level = Levels.findOne(levelId);
-        }));
+        });
 
         this.showBeforeGameModal({
             level: this.level,
@@ -103,6 +109,13 @@ export class Board implements OnDeactivate
         });
     }
 
+    private autorun(operation:() => void) {
+        const tracker = Tracker.autorun(zone.bind(operation));
+        this.ondeactivate.subscribeOnCompleted(() => {
+            tracker.stop();
+        });
+    }
+
     private showBeforeGameModal(params:IBeforeGameModalParams) {
         return this.showModal(BeforeGameModal, IBeforeGameModalParams, params);
     }
@@ -122,14 +135,8 @@ export class Board implements OnDeactivate
     }
 
     public onDeactivate() {
-        if (this.gameTracker) {
-            this.gameTracker.stop();
-            this.gameTracker = null;
-        }
-        if (this.levelTracker) {
-            this.levelTracker.stop();
-            this.levelTracker = null;
-        }
+        this.ondeactivate.onNext(null);
+        this.ondeactivate.onCompleted();
     }
 
     private getLatestGame() {

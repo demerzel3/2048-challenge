@@ -1,9 +1,9 @@
-import {Inject} from 'angular2/angular2';
+import {Inject, EventEmitter} from 'angular2/angular2';
 import {Tile} from './tile';
 import {Grid} from './grid';
 import {LevelManager} from './service/level_manager';
-import {HTMLActuator} from './html_actuator';
 import {KeyboardInputManager} from './keyboard_input_manager';
+import {Rx} from 'rx';
 
 export class GameManager {
     private game:IGame;
@@ -11,7 +11,6 @@ export class GameManager {
 
     private levelManager:LevelManager;
     private inputManager;
-    private actuator;
 
     private grid:Grid;
     private nMoves:number = 0;
@@ -20,12 +19,12 @@ export class GameManager {
     private boundToInputManager:boolean = false;
     private isReplaying:boolean = false;
 
+    public onactuate:Rx.Subject = new Rx.Subject();
+
     constructor(@Inject(LevelManager) levelManager:LevelManager,
-                @Inject(KeyboardInputManager) inputManager,
-                @Inject(HTMLActuator) actuator) {
+                @Inject(KeyboardInputManager) inputManager) {
         this.levelManager = levelManager;
         this.inputManager = inputManager;
-        this.actuator = actuator;
     }
 
     public setGame(game:IGame) {
@@ -80,7 +79,6 @@ export class GameManager {
 
     // Restart the game
     public restart() {
-        this.actuator.continueGame(); // Clear the game won/lost message
         this.setup();
     }
 
@@ -118,13 +116,13 @@ export class GameManager {
 
     // Sends the updated grid to the actuator
     public actuate() {
-        this.actuator.actuate(this.grid, {
+        this.onactuate.onNext({
+            grid: this.grid,
             nMoves: this.nMoves,
             over: this.over,
             won: this.won,
-            terminated: this.isGameTerminated()
+            terminated: this.isGameTerminated(),
         });
-
     }
 
     // Represent the current game as an object
